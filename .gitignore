@@ -1,0 +1,8 @@
+#python read the docs - .gitignore
+.DS_Store
+/pyrtd/
+/dbs/
+/old_files/
+/software/
+/sublime/
+/reflibs/
