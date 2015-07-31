@@ -1,8 +1,6 @@
-#python read the docs - .gitignore
+#RPubsScripts - .gitignore
 .DS_Store
-/pyrtd/
-/dbs/
+/data/
 /old_files/
-/software/
 /sublime/
-/reflibs/
+NOTES.txt
