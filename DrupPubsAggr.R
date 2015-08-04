@@ -1,38 +1,68 @@
 # 
 # This script collapses and merges database tables from Drupal publications
-# into a aggregate human readable .csv file that can be queryied with SAS or R or other statistical computing software
+# into a aggregate human readable .csv file that can be queryied with SAS or 
+# R or other statistical computing software
 # 
 
+#
+# CONFIGURATION
+#
+
+working_directory = "/Users/pdy/code/R/Publications/RPubsScripts"
 
 #setting the working directory
-setwd("/Users/pdy/code/R/Publications/raw_data")
+setwd(file.path(working_directory))
+
+# setting the path to the csv of the main biblio table
+biblio_path = "data/biblio.csv"
+
+# biblio_types table path ie journal article, book, dissertation
+types_path = "data/biblio_types.csv"
+
+# biblio_contributor table path  
+contributor_path = "data/biblio_contributor.csv"
+
+# biblio_contributor_data table path
+contributor_data_path = "data/biblio_contributor.csv"
+
+# biblio_keyword table path
+keyword_path = "data/biblio_keyword.csv"
+
+# biblio_keyword_data table path
+keyword_data_path = "data/biblio_keyword_data.csv"
+
+# biblio_pubmed table path
+pubmed_path = "data/biblio_pubmed.csv"
 
 ## READING THE CSV TABLES INTO DATA FRAMES
 
-# biblio table DO WE NEED SECONDARY TITLE FOR JOURNAL NAME / CHECK FOR TIMESTAMP / DO WE NEED ACCESSION NUMBER
-biblio<-read.csv("biblio.csv")
+# biblio table 
+biblio<-read.csv(biblio_path, head=TRUE, sep=",")
 
 # biblio_types table, a lookup table for types such as journal, book, thesis 
-# one biblio: one type 
-types<-read.csv("biblio_types.csv")
-
-# biblio_contributor_data, a lookup table for contributor names 
-c_data<-read.csv("biblio_contributor_data.csv")
+# There is a a one biblio : one type relationship 
+types<-read.csv(types_path, head=TRUE, sep=",")
 
 # biblio_contributor table, a join or juntion table between the biblio and biblio_contributor_data tables
-# generally, 1 biblio: many contributors 
-contributor<-read.csv("biblio_contributor.csv")
+# Generally, there is a one one biblio : many contributors relatioinshipo 
+contributor<-read.csv(contributor__path, head=TRUE, sep=",")
 
-# biblio_keywords, a lookup table for keyword names
-k_data<-read.csv("biblio_keyword_data.csv")
+# biblio_contributor_data, a lookup table for contributor names 
+contributor_data<-read.csv(contributor_data_path, head=TRUE, sep=",")
 
 # biblio_keywords table, a join or juntion table between the biblio and biblio_keywords_data tables
 # generally, 1 biblio: many keywords 
-keywords<-read.csv("biblio_keyword.csv")
+keyword<-read.csv(keyword_path, head=TRUE, sep=",")
+
+
+# biblio_keywords, a lookup table for keyword names
+keyword_data<-read.csv(keyword_data_path, head=TRUE, sep=",")
+
+
 
 # biblio_pubmed table, a lookup table for pubmed and pubmed central ids
 # one biblio: one pubmed AND/OR pmc id(s)  
-pubmed<-read.csv("biblio_pubmed.csv")
+pubmed<-read.csv(pubmed_path, head=TRUE, sep=",")
 
 # MERGING PUBMED AND TYPES INTO BIBLIO - ONE TO ONE RELATIONSHIPS 
 
@@ -56,7 +86,7 @@ biblio<-merge(biblio,pubmed, by.x= "nid", by.y = "nid", all=TRUE)
 
 # contributor
 
-c_merged<-merge(contributor,c_data, by = "cid", all=TRUE)
+c_merged<-merge(contributor,contributor_data, by = "cid", all=TRUE)
 
 c_merged$cid <- NULL
 
@@ -67,7 +97,7 @@ biblio<-merge(biblio,c_agg, by.x= "nid", by.y = "nid", all=TRUE)
 
 # keywords
 
-k_merged<-merge(keywords,k_data, by = "kid", all=TRUE)
+k_merged<-merge(keyword,k_data, by = "kid", all=TRUE)
 
 k_merged$kid <- NULL
 
