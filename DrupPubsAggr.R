@@ -18,13 +18,13 @@ setwd(file.path(working_directory))
 # setting the path to the csv of the main biblio table
 biblio_path = "data/biblio.csv"
 
-# biblio_types table path ie journal article, book, dissertation
+# biblio_types table path - a lookup table for types such as journal, book, thesis 
 types_path = "data/biblio_types.csv"
 
-# biblio_contributor table path  
+# biblio_contributor table path - a join or juntion table between the biblio and biblio_contributor_data tables
 contributor_path = "data/biblio_contributor.csv"
 
-# biblio_contributor_data table path
+# biblio_contributor_data table path - a lookup table for contributor names 
 contributor_data_path = "data/biblio_contributor_data.csv"
 
 # biblio_keyword table path
@@ -43,15 +43,15 @@ pubmed_path = "data/biblio_pubmed.csv"
 # biblio table 
 biblio<-read.csv(biblio_path, head=TRUE, sep=",")
 
-# biblio_types table, a lookup table for types such as journal, book, thesis 
+# biblio_types table, 
 # There is a a one biblio : one type relationship 
 types<-read.csv(types_path, head=TRUE, sep=",")
 
-# biblio_contributor table, a join or juntion table between the biblio and biblio_contributor_data tables
+# biblio_contributor table, 
 # Generally, there is a one one biblio : many contributors relatioinshipo 
 contributor<-read.csv(contributor_path, head=TRUE, sep=",")
 
-# biblio_contributor_data, a lookup table for contributor names 
+# biblio_contributor_data, 
 contributor_data<-read.csv(contributor_data_path, head=TRUE, sep=",")
 
 # biblio_keywords table, a join or juntion table between the biblio and biblio_keywords_data tables
@@ -66,8 +66,9 @@ keyword_data<-read.csv(keyword_data_path, head=TRUE, sep=",")
 pubmed<-read.csv(pubmed_path, head=TRUE, sep=",")
 
 # Merging publication types into the biblio table - ONE TO ONE RELATIONSHIPS 
-
 biblio<-merge(biblio,types, by.x = "biblio_type", by.y = "tid", all=TRUE)
+biblio$biblio_type <- NULL
+
 
 # Merging pubmed PMC id's into biblio table
 biblio<-merge(biblio,pubmed, by.x= "nid", by.y = "nid", all=TRUE)
@@ -97,6 +98,9 @@ biblio<-merge(biblio,keyword_aggregate, by.x= "nid", by.y = "nid", all=TRUE)
 # Merging the two columns that could contain the journal name
 biblio<-transform(biblio,journal=interaction(biblio_secondary_title,biblio_tertiary_title,sep=' '))
 
+biblio$biblio_secondary_title <- NULL
+biblio$biblio_tertiary_title <- NULL
+
 
 #
 # CLEAN UP
@@ -104,8 +108,8 @@ biblio<-transform(biblio,journal=interaction(biblio_secondary_title,biblio_terti
 
 
 # Renaming the columns
-biblio$biblio_secondary_title <- NULL
-biblio$biblio_tertiary_title <- NULL
+
+
 colnames(biblio)[1] <- "id"
 colnames(biblio)[2] <- "Title"
 colnames(biblio)[3] <- "Date"
