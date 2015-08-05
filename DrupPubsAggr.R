@@ -27,14 +27,15 @@ contributor_path = "data/biblio_contributor.csv"
 # biblio_contributor_data table path - a lookup table for contributor names 
 contributor_data_path = "data/biblio_contributor_data.csv"
 
-# biblio_keyword table path
+# biblio_keyword table path - a join or juntion table between the biblio and biblio_keywords_data tables
 keyword_path = "data/biblio_keyword.csv"
 
-# biblio_keyword_data table path
+# biblio_keyword_data table path - a lookup table for keyword names
 keyword_data_path = "data/biblio_keyword_data.csv"
 
-# biblio_pubmed table path
+# biblio_pubmed table path - a lookup table for pubmed and pubmed central ids
 pubmed_path = "data/biblio_pubmed.csv"
+
 
 #
 # READING THE CSV TABLES INTO DATA FRAMES
@@ -43,40 +44,38 @@ pubmed_path = "data/biblio_pubmed.csv"
 # biblio table 
 biblio<-read.csv(biblio_path, head=TRUE, sep=",")
 
-# biblio_types table, 
-# There is a a one biblio : one type relationship 
+# biblio_types table
 types<-read.csv(types_path, head=TRUE, sep=",")
 
-# biblio_contributor table, 
-# Generally, there is a one one biblio : many contributors relatioinshipo 
+# biblio_contributor table  
 contributor<-read.csv(contributor_path, head=TRUE, sep=",")
 
-# biblio_contributor_data, 
+# biblio_contributor_data 
 contributor_data<-read.csv(contributor_data_path, head=TRUE, sep=",")
 
-# biblio_keywords table, a join or juntion table between the biblio and biblio_keywords_data tables
+# biblio_keywords table
 # generally, 1 biblio: many keywords 
 keyword<-read.csv(keyword_path, head=TRUE, sep=",")
 
-# biblio_keywords, a lookup table for keyword names
+# biblio_keywords
 keyword_data<-read.csv(keyword_data_path, head=TRUE, sep=",")
 
-# biblio_pubmed table, a lookup table for pubmed and pubmed central ids
-# one biblio: one pubmed AND/OR pmc id(s)  
+# biblio_pubmed table 
 pubmed<-read.csv(pubmed_path, head=TRUE, sep=",")
 
-# Merging publication types into the biblio table - ONE TO ONE RELATIONSHIPS 
+
+#
+# ADDING LOOKUP DATA INTO THE BIBLIO TABLE
+#
+
+# publication types into biblio table - one-to-one relationship; one biblio to one type   
 biblio<-merge(biblio,types, by.x = "biblio_type", by.y = "tid", all=TRUE)
 biblio$biblio_type <- NULL
 
-
-# Merging pubmed PMC id's into biblio table
+# pubmed PMC ids into biblio table - one-to-one relationship; one biblio to one pubmed AND/OR pmc id.  
 biblio<-merge(biblio,pubmed, by.x= "nid", by.y = "nid", all=TRUE)
 
-# MERGING AND COLLAPSING KEYWORDS AND CONTRIBUTORS THEN MERGING INTO BIBLIO - MOST LIKELY TO TO BE ONE TO MANY RELATIONSHIPS
-
-# contributor
-
+# contributors into biblio table - one-to-many relatioinship; one biblio to many contributors. 
 contributor_merged<-merge(contributor,contributor_data, by = "cid", all=TRUE)
 
 contributor_merged$cid <- NULL
@@ -85,8 +84,7 @@ contributor_aggregate<-aggregate(name~nid,paste,collapse=" ",data=contributor_me
 
 biblio<-merge(biblio,contributor_aggregate, by.x= "nid", by.y = "nid", all=TRUE)
 
-# keywords
-
+# keywords into biblio table - one-to-many relatioinship; one biblio to many keywords. It is
 keyword_merged<-merge(keyword,keyword_data, by = "kid", all=TRUE)
 
 keyword_merged$kid <- NULL
@@ -95,9 +93,15 @@ keyword_aggregate<-aggregate(word~nid,paste,collapse=", ",data=keyword_merged)
 
 biblio<-merge(biblio,keyword_aggregate, by.x= "nid", by.y = "nid", all=TRUE)
 
-# Merging the two columns that could contain the journal name
+
+#
+# FIXING JOURNAL NAMES
+#
+
+# the journal name could appear in the field biblio_secondary_title or biblio_tertiary_title so they must be combined into a new column
 biblio<-transform(biblio,journal=interaction(biblio_secondary_title,biblio_tertiary_title,sep=' '))
 
+# deleting the old columns
 biblio$biblio_secondary_title <- NULL
 biblio$biblio_tertiary_title <- NULL
 
@@ -106,10 +110,7 @@ biblio$biblio_tertiary_title <- NULL
 # CLEAN UP
 #
 
-
 # Renaming the columns
-
-
 colnames(biblio)[1] <- "id"
 colnames(biblio)[2] <- "Title"
 colnames(biblio)[3] <- "Date"
