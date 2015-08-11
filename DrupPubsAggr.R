@@ -1,6 +1,6 @@
 # 
 # This script collapses and merges database tables from Drupal publications
-# into a aggregate human readable .csv file that can be queryied with SAS or 
+# into a human readable .csv file queryable with SAS or 
 # R or other statistical computing software
 # 
 
@@ -10,7 +10,7 @@
 #
 
 # your working directory path
-working_directory = "/Users/pdy/code/R/Publications/RPubsScripts"
+working_directory = ""
 
 # setting the working directory
 setwd(file.path(working_directory))
